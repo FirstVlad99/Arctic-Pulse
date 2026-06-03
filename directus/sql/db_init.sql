@@ -51,11 +51,24 @@ CREATE TABLE tags (
 );
 
 -- Связь новостей и тэгов
-
 CREATE TABLE news_tags (
     news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE,
     tag_id INT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     
     PRIMARY KEY (news_id, tag_id)
+);
+
+-- Таблица для хранения статистики
+CREATE TABLE news_stats (
+    news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE,
+    views_count INT DEFAULT 0,
+    unique_views_count INT DEFAULT 0,
+    shares_count INT DEFAULT 0,
+    likes_count INT DEFAULT 0,
+     -- Среднее время чтения
+    avg_read_time_seconds INT, 
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    PRIMARY KEY (news_id)
 );
