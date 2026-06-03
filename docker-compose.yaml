@@ -1,0 +1,100 @@
+networks:
+  news-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  directus_uploads:
+  n8n_data:
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: db
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - news-network
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+  directus:
+    image: directus/directus:11.0.0
+    container_name: directus
+    networks:
+      - news-network
+    ports:
+      - "${DIRECTUS_PORT}:8055"
+    volumes:
+      - directus_uploads:/directus/uploads
+    environment:
+      KEY: ${DIRECTUS_KEY}
+      SECRET: ${DIRECTUS_SECRET}
+      DB_CLIENT: "pg"
+      DB_HOST: "postgres"
+      DB_PORT: ${POSTGRES_PORT}
+      DB_DATABASE: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
+    depends_on:
+      postgres:
+       # directus подождет, пока postgres запустится
+          condition: service_healthy
+
+  n8n:
+    image: n8nio/n8n:1.123.51
+    container_name: n8n
+    networks:
+      - news-network
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      # Basic auth
+      N8N_BASIC_AUTH_ACTIVE: true
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD}
+      # основные настройки
+      N8N_HOST: ${N8N_HOST}
+      N8N_PORT: ${N8N_PORT}
+      N8N_PROTOCOL: ${N8N_PROTOCOL}
+      N8N_SECURE_COOKIE: ${N8N_SECURE_COOKIE}
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+      # db
+      DB_TYPE: "postgresdb"
+      DB_POSTGRESDB_HOST: "postgres"
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: ${DB_NAME}
+      DB_POSTGRESDB_USER: ${DB_USER}
+      DB_POSTGRESDB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Пример для React (закоментил, т.к. мало ли Vue возьмем)
+  # frontend:
+  #   image: nginx:alpine
+  #   container_name: frontend
+  #   networks:
+  #     - news-network
+  #   ports:
+  #     - "${FRONTEND_PORT:-80}:80"
+  #   volumes:
+  #     - ./frontend/dist:/usr/share/nginx/html:ro
+  #     - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  #   depends_on:
+  #     - directus
+  #     - n8n
