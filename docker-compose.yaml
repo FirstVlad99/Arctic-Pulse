@@ -41,7 +41,7 @@ services:
       KEY: ${DIRECTUS_KEY}
       SECRET: ${DIRECTUS_SECRET}
       DB_CLIENT: "pg"
-      DB_HOST: "postgres"
+      DB_HOST: ${POSTGRES_HOST}
       DB_PORT: ${POSTGRES_PORT}
       DB_DATABASE: ${DB_NAME}
       DB_USER: ${DB_USER}
@@ -75,8 +75,8 @@ services:
       WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
       # db
       DB_TYPE: "postgresdb"
-      DB_POSTGRESDB_HOST: "postgres"
-      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_HOST: ${POSTGRES_HOST}
+      DB_POSTGRESDB_PORT: ${POSTGRES_PORT}
       DB_POSTGRESDB_DATABASE: ${DB_NAME}
       DB_POSTGRESDB_USER: ${DB_USER}
       DB_POSTGRESDB_PASSWORD: ${DB_PASSWORD}
