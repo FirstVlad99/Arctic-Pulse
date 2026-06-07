@@ -3,6 +3,9 @@ CREATE TABLE sources(
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL,
     rss_url TEXT NOT NULL,
+    -- Рейтинг новостного источника (основан на лайках/дизлайках соотв. новостей)
+    -- от нуля до 100
+    rating DECIMAL(5, 2) DEFAULT 0 CHECK (rating >= 0 AND rating <= 100),
     website_url TEXT NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     last_fetched TIMESTAMPTZ DEFAULT NOW(),
@@ -10,21 +13,52 @@ CREATE TABLE sources(
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- NSIDC
+-- Alaska Beacon
 INSERT INTO sources (name, rss_url, website_url, is_active) 
-VALUES ('NSIDC News', 'https://nsidc.org/news/feed', 'https://nsidc.org', true);
--- Arctic Research
+VALUES ('Alaska Beacon', 'https://alaskabeacon.com/feed/', 'https://alaskabeacon.com/', true);
+-- gCaptain
 INSERT INTO sources (name, rss_url, website_url, is_active) 
-VALUES ('Arctic Research', 'https://arcticresearch.wordpress.com/feed/', 'https://arcticresearch.wordpress.com', true);
--- Great White Con
+VALUES ('gCaptain', 'https://gcaptain.com/feed/', 'https://gcaptain.com/feed/', true);
+-- Science Business Publishing
 INSERT INTO sources (name, rss_url, website_url, is_active) 
-VALUES ('Great White Con', 'https://greatwhitecon.info/blog/feed/', 'https://greatwhitecon.info', true);
--- Arctic Economic Council
+VALUES ('Science Business Publishing', 'https://sciencebusiness.net/sciencebusiness.rss', 'https://sciencebusiness.net/', true);
+-- Construction Physics
 INSERT INTO sources (name, rss_url, website_url, is_active) 
-VALUES ('Arctic Economic Council', 'https://arcticeconomiccouncil.com/feed/', 'https://arcticeconomiccouncil.com', true);
+VALUES ('Construction Physics', 'https://www.construction-physics.com/feed', 'https://www.construction-physics.com/', true);
+-- Sixty Degrees North
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('Sixty Degrees North', 'https://sixtydegreesnorth.substack.com/feed', 'https://sixtydegreesnorth.substack.com/', true);
+-- Marinelog
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('Marinelog', 'https://www.marinelog.com/feed/', 'https://www.marinelog.com/', true);
+-- Navy Times
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('Navy Times', 'https://www.navytimes.com/arc/outboundfeeds/rss/category/news/?outputType=xml', 'https://www.navytimes.com/', true);
+-- Dialogue Earth
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('Dialogue Earth', 'https://dialogue.earth/en/feed/', 'https://dialogue.earth/', true);
+-- Alaska Native News
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('Alaska Native News', 'https://alaska-native-news.com/feed/', 'https://alaska-native-news.com/', true);
+-- Swedish Defence Research Agency
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('Swedish Defence Research Agency', 'https://www.foi.se/4.1b7eb62116732ed52bf491/12.1b7eb62116732ed52bf497.portlet?state=rss&sv.contenttype=text/xml', 'https://www.foi.se/', true);
+-- National Snow and Ice Data Center
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('National Snow and Ice Data Center', 'https://nsidc.org/news/feed', 'https://nsidc.org/', true);
+-- Arctic Research Blogs
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('Arctic Research Blogs', 'https://arcticresearch.wordpress.com/feed/', 'https://arcticresearch.wordpress.com/', true);
+-- The Great White Con
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('The Great White Con', 'https://greatwhitecon.info/blog/feed/', 'https://greatwhitecon.info/', true);
+-- The Arctic Economic Council
+INSERT INTO sources (name, rss_url, website_url, is_active) 
+VALUES ('Alaska Native News', 'https://arcticeconomiccouncil.com/feed/', 'https://arcticeconomiccouncil.com/', true);
 -- The Arctic Institute
 INSERT INTO sources (name, rss_url, website_url, is_active) 
-VALUES ('The Arctic Institute', 'https://www.thearcticinstitute.org/feed/', 'https://www.thearcticinstitute.org', true);
+VALUES ('The Arctic Institute', 'https://www.thearcticinstitute.org/feed/', 'https://www.thearcticinstitute.org/', true);
+
 
 -- Таблица с новостями
 CREATE TABLE news (
@@ -40,6 +74,8 @@ CREATE TABLE news (
     publication_date TIMESTAMPTZ NOT NULL,
     material_author TEXT NOT NULL,
     source_id INT NOT NULL REFERENCES sources(id),
+    -- Релевантность новости, высчитывается LLM при обработке новости
+    relevance_score DECIMAL(5, 2) NOT NULL CHECK (relevance_score >= 0 AND relevance_score <= 100),
     summary_ai TEXT,
     tokens_used INT,
     -- Время обработки в секундах
@@ -55,7 +91,8 @@ CREATE TABLE tags (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
-    color VARCHAR(7) DEFAULT '#3B82F6', -- HEX цвет для UI
+    -- HEX цвет для UI
+    color VARCHAR(7) DEFAULT '#3B82F6', 
     is_active BOOLEAN DEFAULT TRUE,
     usage_count INT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -73,16 +110,19 @@ CREATE TABLE news_tags (
 
 -- Таблица для хранения статистики
 CREATE TABLE news_stats (
-    news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE,
-    views_count INT DEFAULT 0,
-    unique_views_count INT DEFAULT 0,
-    shares_count INT DEFAULT 0,
+    news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE PRIMARY KEY,
     likes_count INT DEFAULT 0,
-    -- Среднее время чтения
-    avg_read_time_seconds INT, 
+    dislikes_count INT DEFAULT 0,
+    -- Вычисляю итоговое кол-во реакций и % лайков от всех реакций
+    total_reactions INT GENERATED ALWAYS AS (likes_count + dislikes_count) STORED,
+    like_ratio DECIMAL(5, 2) GENERATED ALWAYS AS (
+        CASE 
+            WHEN (likes_count + dislikes_count) > 0 
+            THEN (likes_count::DECIMAL / (likes_count + dislikes_count)) * 100 
+            ELSE 0 
+        END
+    ) STORED,
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    
-    PRIMARY KEY (news_id)
 );
 
 -- Таблица для картинок в статьях
@@ -98,7 +138,59 @@ CREATE TABLE media (
     file_size INT NOT NULL,
     -- ID новости, к которой привязана картинка
     news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE,
-    -- Сортировка картинок в статье (1, 2, 3...)
+    -- Сортировка картинок в статье
     sort_order INT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Таблица лайков/дизлайков для новостей
+CREATE TABLE news_reactions (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE,
+    -- Временный токен из Redis
+    session_token VARCHAR(255) NOT NULL, 
+    reaction_type VARCHAR(10) NOT NULL CHECK (reaction_type IN ('like', 'dislike')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    -- Один токен может иметь только одну реакцию на новость
+    UNIQUE(news_id, session_token)
+);
+
+-- View для подсчета total_score (актуальность новости) по relevant_score, recency, source_reputation
+-- total_score = 0.5 * relevance + 0.3 * recency + 0.2 * source_reputation
+CREATE OR REPLACE VIEW news_feed AS
+SELECT 
+    n.id,
+    n.title,
+    n.slug,
+    n.content_clean,
+    n.news_url,
+    n.publication_date,
+    n.relevance_score,
+    s.name as source_name,
+    s.rating as source_rating,
+    COALESCE(ns.likes_count, 0) as likes,
+    COALESCE(ns.dislikes_count, 0) as dislikes,
+    -- Вычисляем recency
+    CASE 
+        WHEN NOW() - n.publication_date < interval '6 hours' THEN 100
+        WHEN NOW() - n.publication_date < interval '12 hours' THEN 80
+        ELSE 60
+    END as freshness,
+    -- total score
+    ROUND(
+        COALESCE(n.relevance_score, 0) * 0.4 +
+        CASE 
+            WHEN NOW() - n.publication_date < interval '6 hours' THEN 100
+            WHEN NOW() - n.publication_date < interval '12 hours' THEN 80
+            ELSE 60
+        END * 0.3 +
+        COALESCE(s.rating, 0) * 0.2,
+        2
+    ) as score
+FROM news n
+JOIN sources s ON s.id = n.source_id
+LEFT JOIN news_stats ns ON ns.news_id = n.id
+WHERE n.publication_date > NOW() - interval '24 hours'  -- Только за последние 24 часа
+ORDER BY score DESC;
