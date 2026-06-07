@@ -194,3 +194,42 @@ JOIN sources s ON s.id = n.source_id
 LEFT JOIN news_stats ns ON ns.news_id = n.id
 WHERE n.publication_date > NOW() - interval '24 hours'  -- Только за последние 24 часа
 ORDER BY score DESC;
+
+-- История количества новостей по тегам по дням
+CREATE TABLE daily_tag_stats (
+    stat_date DATE NOT NULL,
+    tag_id INT NOT NULL REFERENCES tags(id),
+    news_count INT NOT NULL,
+    avg_relevance DECIMAL(5,2) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+
+    PRIMARY KEY(stat_date, tag_id)
+);
+
+-- История метрик по источникам по дням
+CREATE TABLE sources_daily_stats (
+    source_id INT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+    stat_date DATE NOT NULL,
+    news_count INT DEFAULT 0,
+    avg_relevance_score DECIMAL(5,2) DEFAULT 0,
+    total_tokens_used INT DEFAULT 0,
+    avg_processing_time DECIMAL(10,2) DEFAULT 0,
+    source_rating DECIMAL(5,2) DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+
+    PRIMARY KEY(source_id, stat_date)
+);
+
+-- Общая дневная статистика системы
+CREATE TABLE daily_system_stats (
+    stat_date DATE PRIMARY KEY,
+    total_news_published INT DEFAULT 0,
+    total_unique_tags_used INT DEFAULT 0,
+    avg_news_relevance DECIMAL(5, 2) DEFAULT 0,
+    avg_source_rating DECIMAL(5, 2) DEFAULT 0,
+    total_reactions INT DEFAULT 0,  -- сумма лайков+дизлайков
+    like_to_dislike_ratio DECIMAL(5, 2) DEFAULT 0,
+    avg_processing_time DECIMAL(10, 2) DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
