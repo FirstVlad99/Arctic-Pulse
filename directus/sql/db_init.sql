@@ -101,18 +101,34 @@ CREATE TABLE tags (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+INSERT INTO tags (name, description, color) VALUES
+('Politics', 'Political news related to the Arctic', '#3B82F6'),
+('International relations', 'International cooperation and diplomacy in the Arctic', '#6366F1'),
+('Security', 'Military and security issues in the Arctic', '#EF4444'),
+('Economics', 'Economic development in Arctic regions', '#F59E0B'),
+('Energy', 'Energy resources and extraction in the Arctic', '#F97316'),
+('Infrastructure', 'Arctic infrastructure development', '#06B6D4'),
+('Ecology', 'Environmental issues and ecology of the Arctic', '#10B981'),
+('Climate', 'Climate change processes in the Arctic', '#14B8A6'),
+('Science', 'Scientific research in the Arctic', '#8B5CF6'),
+('Indigenous peoples', 'Indigenous peoples of the Arctic', '#EC4899'),
+('Shipping', 'Arctic shipping and Northern Sea Route', '#0EA5E9'),
+('Industry', 'Industrial development in Arctic regions', '#84CC16');
+
 -- Связь новостей и тэгов
 CREATE TABLE news_tags (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE,
     tag_id INT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     
-    PRIMARY KEY (news_id, tag_id)
+    UNIQUE(news_id, tag_id)
 );
 
 -- Таблица для хранения статистики
 CREATE TABLE news_stats (
-    news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    news_id INT NOT NULL UNIQUE REFERENCES news(id) ON DELETE CASCADE,
     likes_count INT DEFAULT 0,
     dislikes_count INT DEFAULT 0,
     -- Вычисляю итоговое кол-во реакций и % лайков от всех реакций
@@ -199,17 +215,19 @@ ORDER BY score DESC;
 
 -- История количества новостей по тегам по дням
 CREATE TABLE daily_tag_stats (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     stat_date DATE NOT NULL,
     tag_id INT NOT NULL REFERENCES tags(id),
     news_count INT NOT NULL,
     avg_relevance DECIMAL(5,2) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
 
-    PRIMARY KEY(stat_date, tag_id)
+    UNIQUE(stat_date, tag_id)
 );
 
 -- История метрик по источникам по дням
 CREATE TABLE sources_daily_stats (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     source_id INT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
     stat_date DATE NOT NULL,
     news_count INT DEFAULT 0,
@@ -219,12 +237,13 @@ CREATE TABLE sources_daily_stats (
     source_rating DECIMAL(5,2) DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
 
-    PRIMARY KEY(source_id, stat_date)
+    UNIQUE(source_id, stat_date)
 );
 
 -- Общая дневная статистика системы
 CREATE TABLE daily_system_stats (
-    stat_date DATE PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    stat_date DATE NOT NULL UNIQUE,
     total_news_published INT DEFAULT 0,
     total_unique_tags_used INT DEFAULT 0,
     avg_news_relevance DECIMAL(5, 2) DEFAULT 0,
@@ -238,7 +257,8 @@ CREATE TABLE daily_system_stats (
 
 -- Для хранения коэффициентов при подсчете Байессовского рейтинга для репутации источника
 CREATE TABLE system_settings (
-    key TEXT PRIMARY KEY,
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    key TEXT NOT NULL UNIQUE,
     value NUMERIC NOT NULL
 );
 
