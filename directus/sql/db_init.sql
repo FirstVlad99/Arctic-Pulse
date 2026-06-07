@@ -111,7 +111,6 @@ CREATE TABLE news_tags (
 -- Таблица для хранения статистики
 CREATE TABLE news_stats (
     news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE PRIMARY KEY,
-    news_id INT NOT NULL REFERENCES news(id) ON DELETE CASCADE PRIMARY KEY,
     likes_count INT DEFAULT 0,
     dislikes_count INT DEFAULT 0,
     -- Вычисляю итоговое кол-во реакций и % лайков от всех реакций
@@ -123,7 +122,7 @@ CREATE TABLE news_stats (
             ELSE 0 
         END
     ) STORED,
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Таблица для картинок в статьях
