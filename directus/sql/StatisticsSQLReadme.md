@@ -1,19 +1,15 @@
-1. Статистика по тегам за последние 7 дней
+1. Статистика по тегам за последние 7 дней. Показывает, как менялась активность тега по дням недели
 ```sql
 SELECT
     t.id,
     t.name,
-    SUM(dts.news_count) AS total_news,
-    ROUND(
-        SUM(dts.avg_relevance * dts.news_count)
-        / NULLIF(SUM(dts.news_count), 0),
-        2
-    ) AS avg_relevance
+    dts.stat_date,
+    dts.news_count,
+    dts.avg_relevance
 FROM daily_tag_stats dts
 JOIN tags t ON t.id = dts.tag_id
 WHERE dts.stat_date BETWEEN CURRENT_DATE - 6 AND CURRENT_DATE
-GROUP BY t.id, t.name
-ORDER BY total_news DESC;
+ORDER BY t.id, dts.stat_date DESC;
 ```
 
 2. Сколько новостей у каждого источника за неделю
