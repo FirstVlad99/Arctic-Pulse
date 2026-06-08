@@ -75,6 +75,8 @@ CREATE TABLE news (
     news_url TEXT NOT NULL,
     publication_date TIMESTAMPTZ NOT NULL,
     material_author TEXT NOT NULL,
+    -- Является ли новость об Арктике
+    is_arctic BOOLEAN NOT NULL DEFAULT FALSE,
     source_id INT NOT NULL REFERENCES sources(id),
     -- Релевантность новости, высчитывается LLM при обработке новости
     relevance_score DECIMAL(5, 2) NOT NULL CHECK (relevance_score >= 0 AND relevance_score <= 100),
