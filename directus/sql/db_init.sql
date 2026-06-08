@@ -268,3 +268,45 @@ INSERT INTO system_settings(key, value)
 VALUES
 ('prior_likes', 7),
 ('prior_votes', 10);
+
+-- Таблица для дайджестов
+CREATE TABLE digests (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    -- DAILY / WEEKLY
+    digest_type VARCHAR(20) NOT NULL
+        CHECK (digest_type IN ('daily', 'weekly')),
+    title TEXT NOT NULL,
+    -- Выжимка от LLM по всем новостям дайджеста
+    summary_ai TEXT NOT NULL,
+    -- Период, который покрывает дайджест
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    -- Сколько новостей вошло
+    news_count INT NOT NULL,
+    -- Средний score вошедших новостей
+    avg_score DECIMAL(5,2),
+    -- Сколько токенов потрачено на генерацию
+    tokens_used INT,
+    generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE(digest_type, period_start, period_end)
+);
+
+-- Таблица для связи дайджеста и новостей
+CREATE TABLE digest_news (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    digest_id INT NOT NULL
+        REFERENCES digests(id)
+        ON DELETE CASCADE,
+    news_id INT NOT NULL
+        REFERENCES news(id)
+        ON DELETE CASCADE,
+    -- место новости внутри дайджеста
+    position INT NOT NULL,
+    -- score новости на момент попадания
+    score_snapshot DECIMAL(5,2),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(digest_id, news_id),
+    UNIQUE(digest_id, position)
+);
