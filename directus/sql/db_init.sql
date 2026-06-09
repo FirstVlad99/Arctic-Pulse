@@ -177,9 +177,10 @@ CREATE TABLE news_reactions (
     UNIQUE(news_id, session_token)
 );
 
+-- ДЛЯ ЕЖЕДНЕВНОГО ДАЙДЖЕСТА
 -- View для подсчета total_score (актуальность новости) по relevant_score, recency, source_reputation
 -- total_score = 0.5 * relevance + 0.3 * recency + 0.2 * source_reputation
-CREATE OR REPLACE VIEW news_feed AS
+CREATE OR REPLACE VIEW daily_news_feed AS
 SELECT 
     n.id,
     n.title,
@@ -213,6 +214,51 @@ FROM news n
 JOIN sources s ON s.id = n.source_id
 LEFT JOIN news_stats ns ON ns.news_id = n.id
 WHERE n.publication_date > NOW() - interval '24 hours'  -- Только за последние 24 часа
+ORDER BY score DESC;
+
+-- ДЛЯ НЕДЕЛЬНОГО ДАЙДЖЕСТА
+-- View для подсчета total_score (актуальность новости) по relevant_score, recency, source_reputation
+-- total_score = 0.5 * relevance + 0.3 * recency + 0.2 * source_reputation
+CREATE OR REPLACE VIEW weekly_news_feed AS
+SELECT 
+    n.id,
+    n.title,
+    n.slug,
+    n.content_clean,
+    n.news_url,
+    n.publication_date,
+    n.relevance_score,
+    s.name as source_name,
+    s.rating as source_rating,
+    COALESCE(ns.likes_count, 0) as likes,
+    COALESCE(ns.dislikes_count, 0) as dislikes,
+    -- Вычисляем recency
+    CASE 
+        WHEN NOW() - n.publication_date < interval '6 hours' THEN 100
+        WHEN NOW() - n.publication_date < interval '12 hours' THEN 80
+        WHEN NOW() - n.publication_date < interval '1 day' THEN 70
+        WHEN NOW() - n.publication_date < interval '3 days' THEN 50
+        WHEN NOW() - n.publication_date < interval '7 days' THEN 30
+        ELSE 10
+    END as freshness,
+    -- total score
+    ROUND(
+        COALESCE(n.relevance_score, 0) * 0.4 +
+        CASE 
+            WHEN NOW() - n.publication_date < interval '6 hours' THEN 100
+            WHEN NOW() - n.publication_date < interval '12 hours' THEN 80
+            WHEN NOW() - n.publication_date < interval '1 day' THEN 70
+            WHEN NOW() - n.publication_date < interval '3 days' THEN 50
+            WHEN NOW() - n.publication_date < interval '7 days' THEN 30
+            ELSE 10
+        END * 0.3 +
+        COALESCE(s.rating, 0) * 0.2,
+        2
+    ) as score
+FROM news n
+JOIN sources s ON s.id = n.source_id
+LEFT JOIN news_stats ns ON ns.news_id = n.id
+WHERE n.publication_date > NOW() - interval '7 days'  -- За последние 7 дней
 ORDER BY score DESC;
 
 -- История количества новостей по тегам по дням
