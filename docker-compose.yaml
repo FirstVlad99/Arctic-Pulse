@@ -27,6 +27,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  adminer:
+      image: adminer:latest
+      container_name: adminer
+      restart: unless-stopped
+      ports:
+        - "8080:8080"
+      networks:
+        - news-network
+      environment:
+        ADMINER_DEFAULT_SERVER: db
     
   directus:
     image: directus/directus:11.0.0
@@ -48,6 +59,12 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
       ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8055/server/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
     depends_on:
       postgres:
        # directus подождет, пока postgres запустится
@@ -84,17 +101,79 @@ services:
       postgres:
         condition: service_healthy
 
-  # Пример для React (закоментил, т.к. мало ли Vue возьмем)
-  # frontend:
-  #   image: nginx:alpine
-  #   container_name: frontend
-  #   networks:
-  #     - news-network
-  #   ports:
-  #     - "${FRONTEND_PORT:-80}:80"
-  #   volumes:
-  #     - ./frontend/dist:/usr/share/nginx/html:ro
-  #     - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-  #   depends_on:
-  #     - directus
-  #     - n8n
+  # Сервис для однократного импорта workflow при запуске
+  n8n-migrate:
+    image: n8nio/n8n:1.123.51
+    container_name: n8n-migrate
+    networks:
+      - news-network
+    volumes:
+      - ./n8n/workflows:/workflows:ro
+    environment:
+      DB_TYPE: "postgresdb"
+      DB_POSTGRESDB_HOST: ${POSTGRES_HOST}
+      DB_POSTGRESDB_PORT: ${POSTGRES_PORT}
+      DB_POSTGRESDB_DATABASE: ${DB_NAME}
+      DB_POSTGRESDB_USER: ${DB_USER}
+      DB_POSTGRESDB_PASSWORD: ${DB_PASSWORD}
+    entrypoint: ["/bin/sh"]
+    command: >
+      -c "
+      echo '=== Workflow Migration Service ===' &&
+      echo 'Waiting for database...' &&
+      sleep 10 &&
+      if [ -d /workflows ]; then
+        echo 'Found workflows directory' &&
+        ls -la /workflows/ &&
+        for f in /workflows/*.json; do
+          if [ -f \"$$f\" ]; then
+            echo 'Importing:' $$(basename \"$$f\") &&
+            n8n import:workflow --separate --input=\"$$f\"
+          fi
+        done
+      else
+        echo 'No workflows directory found'
+      fi &&
+      echo 'Migration completed'"
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    networks:
+      - news-network
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - directus
+      - n8n
+    restart: unless-stopped
+
+  directus-init:
+    build:
+      context: .  # текущая директория (корень проекта)
+      dockerfile: Dockerfile-init
+    container_name: directus-init
+    networks:
+      - news-network
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      DIRECTUS_PORT: ${DIRECTUS_PORT:-8055}
+      DIRECTUS_ADMIN_EMAIL: ${DIRECTUS_ADMIN_EMAIL}
+      DIRECTUS_ADMIN_PASSWORD: ${DIRECTUS_ADMIN_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      directus:
+        condition: service_started     
+    restart: "no"  # запускается один раз и останавливается

@@ -1,0 +1,284 @@
+/* Рувики-стиль */
+:root {
+  /* Основные цвета из руководства Рувики [citation:3] */
+  --ruwiki-blue: #cfe3ff;
+  --ruwiki-blue-hover: #b8d4f5;
+  --ruwiki-gray: #eaecf0;
+  --ruwiki-gray-light: #f8f9fa;
+  --ruwiki-gray-dark: #c8ccd1;
+  --ruwiki-text: #202122;
+  --ruwiki-text-secondary: #54595d;
+  --ruwiki-link: #0645AD;
+  --ruwiki-link-hover: #0B0080;
+  --ruwiki-border: #E5E5E5;
+  
+  /* Адаптивные переменные */
+  --content-width: 1200px;
+  --sidebar-width: 280px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Lato', 'Helvetica Neue', sans-serif;
+  background-color: var(--ruwiki-gray-light);
+  color: var(--ruwiki-text);
+  line-height: 1.5;
+}
+
+/* Контейнер в стиле Рувики */
+.ruwiki-container {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Шапка как у Рувики */
+.ruwiki-header {
+  background: white;
+  border-bottom: 1px solid var(--ruwiki-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px 0;
+}
+
+.ruwiki-header-content {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Логотип */
+.ruwiki-logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--ruwiki-text);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ruwiki-logo:hover {
+  text-decoration: none;
+  color: var(--ruwiki-text);
+}
+
+/* Поиск в стиле Рувики (с ИИ-переключателем) */
+.ruwiki-search {
+  flex: 1;
+  max-width: 500px;
+  position: relative;
+}
+
+.ruwiki-search-input {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid var(--ruwiki-border);
+  border-radius: 20px;
+  font-size: 14px;
+  background: white;
+  transition: all 0.2s;
+}
+
+.ruwiki-search-input:focus {
+  outline: none;
+  border-color: var(--ruwiki-blue);
+  box-shadow: 0 0 0 2px rgba(207, 227, 255, 0.3);
+}
+
+/* Кнопки */
+.ruwiki-button {
+  background: var(--ruwiki-gray);
+  border: 1px solid var(--ruwiki-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--ruwiki-text);
+}
+
+.ruwiki-button:hover {
+  background: var(--ruwiki-gray-dark);
+}
+
+.ruwiki-button-primary {
+  background: var(--ruwiki-blue);
+  border-color: var(--ruwiki-blue-hover);
+}
+
+.ruwiki-button-primary:hover {
+  background: var(--ruwiki-blue-hover);
+}
+
+/* Карточки в стиле Рувики [citation:5] */
+.ruwiki-card {
+  background: white;
+  border: 1px solid var(--ruwiki-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.ruwiki-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ruwiki-card-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.ruwiki-card-content {
+  padding: 16px;
+}
+
+.ruwiki-card-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--ruwiki-link);
+}
+
+.ruwiki-card-description {
+  font-size: 14px;
+  color: var(--ruwiki-text-secondary);
+  line-height: 1.4;
+}
+
+/* Ссылки как в Рувики */
+a, .ruwiki-link {
+  color: var(--ruwiki-link);
+  text-decoration: none;
+}
+
+a:hover, .ruwiki-link:hover {
+  color: var(--ruwiki-link-hover);
+  text-decoration: underline;
+}
+
+/* Две колонки как на главной Рувики [citation:5] */
+.ruwiki-two-columns {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.ruwiki-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+}
+
+.ruwiki-main {
+  flex: 1;
+}
+
+/* Боковое меню */
+.ruwiki-nav-menu {
+  background: white;
+  border: 1px solid var(--ruwiki-border);
+  border-radius: 8px;
+  padding: 16px 0;
+}
+
+.ruwiki-nav-item {
+  padding: 8px 16px;
+  display: block;
+  color: var(--ruwiki-text);
+  transition: background 0.2s;
+}
+
+.ruwiki-nav-item:hover {
+  background: var(--ruwiki-gray-light);
+  text-decoration: none;
+}
+
+.ruwiki-nav-item.active {
+  background: var(--ruwiki-blue);
+  font-weight: 500;
+}
+
+/* Таблицы как в Рувики */
+.ruwiki-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid var(--ruwiki-border);
+}
+
+.ruwiki-table th,
+.ruwiki-table td {
+  border: 1px solid var(--ruwiki-border);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.ruwiki-table th {
+  background: var(--ruwiki-gray-light);
+  font-weight: 500;
+}
+
+/* Теги и чипсы */
+.ruwiki-tag {
+  display: inline-block;
+  background: var(--ruwiki-gray);
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  color: var(--ruwiki-text-secondary);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .ruwiki-two-columns {
+    flex-direction: column;
+  }
+  
+  .ruwiki-sidebar {
+    width: 100%;
+  }
+  
+  .ruwiki-header-content {
+    flex-direction: column;
+  }
+  
+  .ruwiki-search {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+/* Тёмная тема (опционально) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ruwiki-gray: #2a2e33;
+    --ruwiki-gray-light: #1c1e21;
+    --ruwiki-gray-dark: #3a3e45;
+    --ruwiki-text: #e0e0e0;
+    --ruwiki-text-secondary: #a0a0a0;
+    --ruwiki-border: #3a3e45;
+  }
+  
+  body {
+    background-color: #121212;
+  }
+  
+  .ruwiki-card,
+  .ruwiki-nav-menu,
+  .ruwiki-table {
+    background: #1e1e1e;
+  }
+}

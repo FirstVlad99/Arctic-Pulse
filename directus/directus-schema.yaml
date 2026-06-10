@@ -1,0 +1,50 @@
+version: 1
+directus: 11.0.0
+collections:
+  - collection: sources
+    schema: 
+      name: sources
+  - collection: news
+    schema: 
+      name: news
+  - collection: tags
+    schema: 
+      name: tags
+  - collection: news_tags
+    schema: 
+      name: news_tags
+  - collection: news_stats
+    schema: 
+      name: news_stats
+  - collection: media
+    schema: 
+      name: media
+  - collection: news_reactions
+    schema: 
+      name: news_reactions
+  - collection: daily_tag_stats
+    schema: 
+      name: daily_tag_stats
+  - collection: sources_daily_stats
+    schema: 
+      name: sources_daily_stats
+  - collection: daily_system_stats
+    schema: 
+      name: daily_system_stats
+  - collection: system_settings
+    schema: 
+      name: system_settings
+  - collection: digests
+    schema: 
+      name: digests
+  - collection: digest_news
+    schema: 
+      name: digest_news
+  - collection: daily_news_feed
+    schema: 
+      name: daily_news_feed
+      type: view
+  - collection: weekly_news_feed
+    schema: 
+      name: weekly_news_feed
+      type: view

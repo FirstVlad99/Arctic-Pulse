@@ -1,0 +1,57 @@
+.main-layout-content {
+  padding: 32px;
+  background: transparent;
+  min-height: calc(100vh - 60px);
+  margin-top: 40px;
+}
+
+.main-layout-content.is-mobile {
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.main-layout-search .ant-input-affix-wrapper {
+  background: #fff;
+  border: 1px solid rgba(200, 204, 209, 0.65);
+  border-radius: 30px !important;
+}
+
+.main-layout-search .ant-input {
+  border-radius: 30px 0px 0px 30px;
+}
+
+.main-layout-search .ant-input::placeholder {
+  color: rgba(10, 43, 78, 0.55);
+}
+
+.main-layout-search .ant-input-affix-wrapper:hover,
+.main-layout-search .ant-input-affix-wrapper:focus,
+.main-layout-search .ant-input-affix-wrapper-focused {
+  border-color: rgba(200, 204, 209, 0.95);
+  box-shadow: none;
+}
+
+/* Input.Search includes a button addon; keep the whole control pill-shaped */
+.main-layout-search .ant-input-group-wrapper,
+.main-layout-search .ant-input-group {
+  border-radius: 30px;
+}
+
+.main-layout-search .ant-input-group .ant-input-affix-wrapper {
+  border-radius: 30px 0 0 30px !important;
+}
+
+.main-layout-search .ant-input-search-button {
+  border-radius: 0 30px 30px 0 !important;
+  border-color: rgba(200, 204, 209, 0.65);
+  background: #fff;
+}
+
+.main-layout-search .ant-input-search-button:hover,
+.main-layout-search .ant-input-search-button:focus {
+  border-color: rgba(200, 204, 209, 0.95);
+}
+
+.main-layout-search .ant-input-search-button .anticon {
+  color: #0a2b4e;
+}

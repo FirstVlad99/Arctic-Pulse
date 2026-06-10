@@ -1,0 +1,65 @@
+<svg viewBox="-5 -3 165 102" xmlns="http://www.w3.org/2000/svg" aria-label="Aurora borealis">
+  <defs>
+    <linearGradient id="al1" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1a6abf" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#1a6abf" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al2" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1970b7" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#1970b7" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al3" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1876af" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#1876af" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al4" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#16829f" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#16829f" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al5" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#158897" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#158897" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al6" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#148e8f" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#148e8f" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al7" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#129487" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#129487" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al8" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#119a7e" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#119a7e" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al9" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#10a076" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#10a076" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al10" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0fa570" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#0fa570" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al11" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0faa68" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#0faa68" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="al12" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0faa68" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#0faa68" stop-opacity="0.92" />
+    </linearGradient>
+  </defs>
+  
+  <rect fill="url(#al1)"  height="77" rx="4.5" transform="rotate(-4,   4.5, 92)" width="9" x="0"   y="15" />
+  <rect fill="url(#al2)"  height="80" rx="4.5" transform="rotate(-3,  17.5, 91)" width="9" x="13"  y="11" />
+  <rect fill="url(#al3)"  height="81" rx="4.5" transform="rotate(-2,  30.5, 89)" width="9" x="26"  y="8"  />
+  <rect fill="url(#al4)"  height="82" rx="4.5" transform="rotate(-1,  43.5, 89)" width="9" x="39"  y="7"  />
+  <rect fill="url(#al5)"  height="81" rx="4.5" transform="rotate( 0,  56.5, 89)" width="9" x="52"  y="8"  />
+  <rect fill="url(#al6)"  height="80" rx="4.5" transform="rotate( 1,  69.5, 91)" width="9" x="65"  y="11" />
+  <rect fill="url(#al7)"  height="77" rx="4.5" transform="rotate( 2,  82.5, 92)" width="9" x="78"  y="15" />
+  <rect fill="url(#al8)"  height="75" rx="4.5" transform="rotate( 3,  95.5, 94)" width="9" x="91"  y="19" />
+  <rect fill="url(#al9)"  height="73" rx="4.5" transform="rotate( 4,108.5, 95)" width="9" x="104" y="22" />
+  <rect fill="url(#al10)" height="72" rx="4.5" transform="rotate( 5,121.5, 95)" width="9" x="117" y="23" />
+  <rect fill="url(#al11)" height="73" rx="4.5" transform="rotate( 4,134.5, 95)" width="9" x="130" y="22" />
+  <rect fill="url(#al12)" height="75" rx="4.5" transform="rotate( 3,147.5, 94)" width="9" x="143" y="19" />
+</svg>

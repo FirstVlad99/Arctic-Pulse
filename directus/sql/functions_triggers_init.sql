@@ -391,3 +391,41 @@ BEGIN
 
 END;
 $$ LANGUAGE plpgsql;
+
+-- Триггер для высчитывания в source rating при инициализации таблицы по формуле Байесовского рейтинга
+CREATE OR REPLACE FUNCTION before_insert_source()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Если rating не указан при вставке, вычисляем
+    IF NEW.rating IS NULL THEN
+        NEW.rating := calculate_bayesian_rating(0, 0);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Общая функция для байесовского рейтинга
+CREATE OR REPLACE FUNCTION calculate_bayesian_rating(
+    p_likes INT,
+    p_dislikes INT
+)
+RETURNS DECIMAL(5,2) AS $$
+DECLARE
+    v_prior_likes NUMERIC;
+    v_prior_votes NUMERIC;
+BEGIN
+    SELECT value::NUMERIC INTO v_prior_likes 
+    FROM system_settings WHERE key = 'prior_likes';
+    
+    SELECT value::NUMERIC INTO v_prior_votes 
+    FROM system_settings WHERE key = 'prior_votes';
+    
+    v_prior_likes := COALESCE(v_prior_likes, 7);
+    v_prior_votes := COALESCE(v_prior_votes, 10);
+    
+    RETURN ROUND(
+        ((v_prior_likes + p_likes) / (v_prior_votes + p_likes + p_dislikes)) * 100,
+        2
+    );
+END;
+$$ LANGUAGE plpgsql STABLE;

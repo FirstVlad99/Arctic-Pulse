@@ -1,3 +1,4 @@
+CREATE DATABASE 
 -- Таблица с источниками новостей
 CREATE TABLE sources(
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -5,7 +6,7 @@ CREATE TABLE sources(
     rss_url TEXT NOT NULL,
     -- Рейтинг новостного источника (основан на лайках/дизлайках соотв. новостей)
     -- от нуля до 100
-    rating DECIMAL(5, 2) DEFAULT 0 CHECK (rating >= 0 AND rating <= 100),
+    rating DECIMAL(5, 2) DEFAULT 70 CHECK (rating >= 0 AND rating <= 100),
     likes_count INT DEFAULT 0,
     dislikes_count INT DEFAULT 0,
     website_url TEXT NOT NULL,
@@ -182,7 +183,7 @@ CREATE TABLE news_reactions (
 -- total_score = 0.5 * relevance + 0.3 * recency + 0.2 * source_reputation
 CREATE OR REPLACE VIEW daily_news_feed AS
 SELECT 
-    n.id,
+    n.id as id,
     n.title,
     n.slug,
     n.content_clean,
@@ -221,7 +222,7 @@ ORDER BY score DESC;
 -- total_score = 0.5 * relevance + 0.3 * recency + 0.2 * source_reputation
 CREATE OR REPLACE VIEW weekly_news_feed AS
 SELECT 
-    n.id,
+    n.id as id,
     n.title,
     n.slug,
     n.content_clean,

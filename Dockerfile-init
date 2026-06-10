@@ -1,0 +1,20 @@
+# Dockerfile-init
+FROM node:20-alpine
+
+# Устанавливаем необходимые утилиты
+RUN apk add --no-cache postgresql-client curl bash
+
+# Создаем рабочую директорию
+WORKDIR /app
+
+# Копируем скрипты
+COPY directus/auto-setup.sh /app/auto-setup.sh
+COPY directus/sql/db_init.sql /app/db_init.sql
+COPY directus/sql/functions_triggers_init.sql /app/functions_triggers_init.sql
+COPY directus/sql/register-collections.sql /app/register-collections.sql
+
+# Делаем скрипт исполняемым
+RUN chmod +x /app/auto-setup.sh
+
+# Запускаем скрипт
+CMD ["/app/auto-setup.sh"]
